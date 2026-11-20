@@ -70,7 +70,7 @@ export function TaskList({ initialPage, initialNotice }: TaskListProps) {
       if (!existing || existing.pages.length <= 1) {
         return {
           pages: [initialPage],
-          pageParams: [undefined],
+          pageParams: [null],
         };
       }
       return {
@@ -94,7 +94,7 @@ export function TaskList({ initialPage, initialNotice }: TaskListProps) {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       initialData: {
         pages: [initialPage],
-        pageParams: [undefined],
+        pageParams: [null],
       },
     }
   );
