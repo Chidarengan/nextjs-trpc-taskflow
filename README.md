@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TaskFlow — Full-Stack Type-Safe Task Manager
+
+A modern, end-to-end type-safe task management application built with **Next.js 15 (App Router)**, **tRPC v11**, **TanStack React Query**, **Zod**, and **Tailwind CSS**.
+
+## Features
+
+- **End-to-End Type Safety:** Shared Zod validation schemas and tRPC routers guarantee strict contract enforcement from server procedures to React client hooks without code generation.
+- **Hybrid SSR + Client Cache Hydration:** Initial task list is rendered on the server for instant First Contentful Paint and seamlessly hydrated into React Query's infinite cache.
+- **Deterministic Cursor-Based Pagination:** Infinite scroll powered by `IntersectionObserver` with a manual fallback button, preventing skipped or duplicated items when new tasks are inserted.
+- **Full CRUD Lifecycle:**
+  - Create tasks with title and optional description (instant cache invalidation and top-of-list placement).
+  - Edit existing tasks via dedicated dynamic routes (`/tasks/[id]/edit`).
+  - Two-step inline delete confirmation to prevent accidental removals.
+- **Input Validation & Error Resilience:** Client-side and server-side Zod validation, graceful empty states, and actionable feedback banners.
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router, React 19, TypeScript strict mode)
+- **API Layer:** tRPC v11 (`@trpc/server`, `@trpc/client`, `@trpc/react-query`)
+- **State & Caching:** TanStack React Query v5
+- **Validation:** Zod
+- **Styling:** Tailwind CSS v4
+
+## Project Structure
+
+    src/
+    ├── app/
+    │   ├── api/trpc/[trpc]/route.ts   # tRPC HTTP fetch adapter (GET & POST)
+    │   ├── tasks/
+    │   │   ├── [id]/edit/page.tsx      # Server-rendered task edit route
+    │   │   └── new/page.tsx            # Task creation route
+    │   ├── globals.css                 # Tailwind CSS entry point
+    │   ├── layout.tsx                  # Root layout & tRPC/React Query provider
+    │   └── page.tsx                    # SSR initial task feed
+    ├── components/
+    │   ├── TaskForm.tsx                # Shared create/edit form with validation
+    │   └── TaskList.tsx                # Infinite-scroll feed & inline delete flow
+    ├── server/
+    │   ├── db/tasks.ts                 # In-memory repository & seed dataset
+    │   └── trpc/
+    │       ├── init.ts                 # tRPC initialization & context
+    │       └── routers/task.ts         # Task CRUD & cursor pagination procedures
+    └── trpc/
+        └── client.tsx                  # Client-side tRPC & QueryClient setup
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 18.18+ (or 20+ recommended)
+- npm
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation & Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+    npm install
+    npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+### Production Build Verification
 
-To learn more about Next.js, take a look at the following resources:
+    npm run build
+    npm run start
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architectural Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Persistence:** Uses an in-memory store (`globalThis`-backed in development to survive Hot Module Replacement) pre-populated with 24 engineering tasks so pagination and CRUD flows can be tested immediately with zero external database setup.
+- **Timestamp Ordering:** Newly created tasks are assigned monotonically increasing UTC timestamps so they always appear deterministically at the top of the feed.
